@@ -1,7 +1,7 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -11,6 +11,12 @@ import {
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Scroll to top when the route changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
 
   const links = [
     { name: "דף הבית", href: "/" },
@@ -21,10 +27,33 @@ const Header = () => {
     { name: "לקביעת תור", href: "/appointments" },
   ];
 
+  // Function to handle navigation and scroll
+  const handleNavigation = (e, href) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (href === location.pathname) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Close mobile menu if open
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-10 bg-white shadow-sm">
       <div className="clinic-container py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-clinic-primary">
+        <Link 
+          to="/" 
+          className="text-2xl font-bold text-clinic-primary"
+          onClick={(e) => handleNavigation(e, "/")}
+        >
           קליניקה הוליסטית
         </Link>
 
@@ -35,6 +64,7 @@ const Header = () => {
               key={link.name}
               to={link.href}
               className="text-gray-700 hover:text-clinic-primary transition-colors px-3 py-2 rounded-md text-sm font-medium"
+              onClick={(e) => handleNavigation(e, link.href)}
             >
               {link.name}
             </Link>
@@ -56,7 +86,7 @@ const Header = () => {
                   key={link.name}
                   to={link.href}
                   className="text-gray-700 hover:text-clinic-primary transition-colors text-lg font-medium text-right"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavigation(e, link.href)}
                 >
                   {link.name}
                 </Link>

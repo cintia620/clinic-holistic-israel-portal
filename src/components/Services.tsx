@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 
 const treatments = [
@@ -56,7 +57,7 @@ const Services = () => {
         </div>
         
         <div className="mt-12 text-center">
-          <a href="#contact" className="clinic-button">לקביעת תור</a>
+          <Link to="/appointments" className="clinic-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>לקביעת תור</Link>
         </div>
       </div>
     </section>

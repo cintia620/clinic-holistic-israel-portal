@@ -1,7 +1,19 @@
 
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
+  // Function to scroll to section or navigate and scroll to top
+  const handleNavigation = (e, href) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <section className="relative bg-gradient-to-b from-clinic-light to-white py-16 md:py-24">
       <div className="clinic-container">
@@ -15,8 +27,8 @@ const Hero = () => {
               הדרך שלך לחיים בריאים, מאוזנים ומלאי אנרגיה. הגישה ההוליסטית שלנו משלבת טיפולים מסורתיים וחדשניים, המותאמים אישית לצרכים הייחודיים שלך.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <a href="#contact" className="clinic-button">קביעת תור</a>
-              <a href="#services" className="px-6 py-3 border border-clinic-primary text-clinic-primary rounded-md hover:bg-clinic-primary/10 transition-colors duration-300 inline-block text-center font-medium">הטיפולים שלנו</a>
+              <Link to="/appointments" className="clinic-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>קביעת תור</Link>
+              <a href="#services" className="px-6 py-3 border border-clinic-primary text-clinic-primary rounded-md hover:bg-clinic-primary/10 transition-colors duration-300 inline-block text-center font-medium" onClick={(e) => handleNavigation(e, "#services")}>הטיפולים שלנו</a>
             </div>
           </div>
           <div className="md:w-1/2 animate-float">
