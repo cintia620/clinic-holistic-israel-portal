@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { format, addDays, startOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -25,6 +24,9 @@ const STEPS = {
   FORM: 3,
   CONFIRMATION: 4,
 };
+
+// Admin email for notifications
+const ADMIN_EMAIL = 'samy620@gmail.com';
 
 const Appointments = () => {
   const { toast } = useToast();
@@ -207,6 +209,18 @@ const Appointments = () => {
         .select();
         
       if (error) throw error;
+
+      // Send notification to admin
+      await notifyAdmin({
+        appointmentId: data[0].id,
+        clientName: bookingData.clientName,
+        clientEmail: bookingData.clientEmail,
+        clientPhone: bookingData.clientPhone,
+        serviceName: selectedService.name,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        time: selectedTime.startTime,
+        notes: bookingData.notes || ''
+      });
       
       setConfirmedBooking({
         ...data[0],
@@ -229,6 +243,48 @@ const Appointments = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Function to send notification email to admin
+  const notifyAdmin = async (appointmentDetails) => {
+    try {
+      const emailData = {
+        to: ADMIN_EMAIL,
+        subject: `תור חדש: ${appointmentDetails.serviceName}`,
+        message: `
+          התקבל תור חדש!
+          
+          שם: ${appointmentDetails.clientName}
+          טלפון: ${appointmentDetails.clientPhone}
+          אימייל: ${appointmentDetails.clientEmail}
+          טיפול: ${appointmentDetails.serviceName}
+          תאריך: ${appointmentDetails.date}
+          שעה: ${appointmentDetails.time}
+          
+          הערות:
+          ${appointmentDetails.notes}
+          
+          מזהה תור: ${appointmentDetails.appointmentId}
+        `
+      };
+
+      // This would normally be handled by a server function/webhook
+      // For now, we'll simulate an email by logging to console
+      console.log('Sending email notification to admin:', emailData);
+      
+      // In a real implementation, you would call a Supabase Edge Function here
+      // Example:
+      // const { error } = await supabase.functions.invoke('send-email-notification', {
+      //   body: emailData
+      // });
+      
+      // if (error) throw error;
+      
+    } catch (error) {
+      console.error('Error sending admin notification:', error);
+      // We don't want to fail the appointment booking if notification fails
+      // So we just log the error
     }
   };
 
