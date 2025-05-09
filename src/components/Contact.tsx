@@ -1,179 +1,191 @@
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
-import { Phone, Mail, MapPin, Calendar } from 'lucide-react';
+import { CalendarClock, Mail, MapPin, Phone } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: 'שם חייב להכיל 2 תווים לפחות' }),
+  email: z.string().email({ message: 'כתובת אימייל לא תקינה' }),
+  phone: z.string().min(9, { message: 'מספר טלפון לא תקין' }),
+  message: z.string().min(5, { message: 'ההודעה חייבת להכיל 5 תווים לפחות' }),
+});
 
 const Contact = () => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    service: '',
-    message: ''
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      message: '',
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    toast({
-      title: "הטופס נשלח בהצלחה",
-      description: "נציג מהקליניקה יצור איתך קשר בקרוב",
-    });
-    setFormData({
-      name: '',
-      phone: '',
-      email: '',
-      service: '',
-      message: ''
-    });
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    try {
+      // Simulate form submission
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('Form data:', data);
+      toast({
+        title: 'ההודעה נשלחה בהצלחה',
+        description: 'תודה על פנייתך. ניצור איתך קשר בהקדם.',
+      });
+      reset();
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'שגיאה',
+        description: 'אירעה שגיאה בעת שליחת הטופס. אנא נסה שוב.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <section id="contact" className="py-16 bg-clinic-light/50">
+    <section id="contact" className="py-16 bg-clinic-light/30">
       <div className="clinic-container">
         <h2 className="section-title">צור קשר</h2>
+        <p className="text-lg mb-12 max-w-3xl">
+          אנו זמינים כדי לענות על כל שאלה שיש לך ולעזור לך למצוא את הטיפול המתאים לצרכים שלך.
+        </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-10">
-          <div>
-            <h3 className="text-2xl font-bold text-clinic-dark mb-6">קבע תור או שאל שאלה</h3>
-            <p className="mb-8 text-gray-700">
-              אנו כאן כדי לענות על כל שאלה ולעזור לך להתחיל את המסע שלך לחיים בריאים ומאוזנים יותר. 
-              מלא את הטופס ואנחנו נחזור אליך בהקדם.
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="space-y-8">
+            <h3 className="text-xl font-semibold mb-6">פרטי התקשרות</h3>
             
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="bg-clinic-primary/20 p-3 rounded-full">
-                  <Phone className="h-6 w-6 text-clinic-primary" />
-                </div>
-                <div>
-                  <h4 className="font-bold">טלפון</h4>
-                  <p>03-1234567</p>
-                </div>
+            <div className="flex items-start text-right gap-4">
+              <div className="flex-1">
+                <h4 className="font-medium">כתובת</h4>
+                <p className="text-gray-600">רחוב הרצל 123, תל אביב</p>
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="bg-clinic-primary/20 p-3 rounded-full">
-                  <Mail className="h-6 w-6 text-clinic-primary" />
-                </div>
-                <div>
-                  <h4 className="font-bold">אימייל</h4>
-                  <p>info@holistic-clinic.co.il</p>
-                </div>
+              <div className="bg-clinic-primary/10 p-3 rounded-full">
+                <MapPin className="h-5 w-5 text-clinic-primary" />
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="bg-clinic-primary/20 p-3 rounded-full">
-                  <MapPin className="h-6 w-6 text-clinic-primary" />
-                </div>
-                <div>
-                  <h4 className="font-bold">כתובת</h4>
-                  <p>רחוב הבריאות 123, תל אביב</p>
-                </div>
+            </div>
+            
+            <div className="flex items-start text-right gap-4">
+              <div className="flex-1">
+                <h4 className="font-medium">אימייל</h4>
+                <p className="text-gray-600">info@holistic-clinic.co.il</p>
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="bg-clinic-primary/20 p-3 rounded-full">
-                  <Calendar className="h-6 w-6 text-clinic-primary" />
-                </div>
-                <div>
-                  <h4 className="font-bold">שעות פעילות</h4>
-                  <p>א'-ה': 09:00-19:00, ו': 09:00-14:00</p>
-                </div>
+              <div className="bg-clinic-primary/10 p-3 rounded-full">
+                <Mail className="h-5 w-5 text-clinic-primary" />
               </div>
+            </div>
+            
+            <div className="flex items-start text-right gap-4">
+              <div className="flex-1">
+                <h4 className="font-medium">טלפון</h4>
+                <p className="text-gray-600">03-1234567</p>
+              </div>
+              <div className="bg-clinic-primary/10 p-3 rounded-full">
+                <Phone className="h-5 w-5 text-clinic-primary" />
+              </div>
+            </div>
+            
+            <div className="flex items-start text-right gap-4">
+              <div className="flex-1">
+                <h4 className="font-medium">שעות פעילות</h4>
+                <p className="text-gray-600">ראשון - חמישי: 9:00 - 19:00</p>
+              </div>
+              <div className="bg-clinic-primary/10 p-3 rounded-full">
+                <CalendarClock className="h-5 w-5 text-clinic-primary" />
+              </div>
+            </div>
+            
+            <div className="pt-4">
+              <Link to="/appointments" className="clinic-button">
+                לקביעת תור
+              </Link>
             </div>
           </div>
           
-          <Card className="clinic-card">
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div>
-                <label htmlFor="name" className="block mb-2 font-medium">שם מלא</label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full"
-                  dir="rtl"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="phone" className="block mb-2 font-medium">טלפון</label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="w-full"
-                  dir="ltr"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="email" className="block mb-2 font-medium">אימייל</label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full"
-                  dir="ltr"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="service" className="block mb-2 font-medium">טיפול מבוקש</label>
-                <select
-                  id="service"
-                  name="service"
-                  value={formData.service}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-md border border-input bg-background px-3 py-2"
-                  dir="rtl"
-                >
-                  <option value="">בחר טיפול</option>
-                  <option value="acupuncture">דיקור סיני</option>
-                  <option value="reflexology">רפלקסולוגיה</option>
-                  <option value="shiatsu">שיאצו</option>
-                  <option value="herbs">טיפול בצמחי מרפא</option>
-                  <option value="naturopathy">נטורופתיה</option>
-                  <option value="massage">טיפולי מגע ועיסויים</option>
-                  <option value="other">אחר</option>
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="message" className="block mb-2 font-medium">הודעה</label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full resize-none"
-                  dir="rtl"
-                />
-              </div>
-              
-              <Button type="submit" className="clinic-button w-full">שליחה</Button>
-            </form>
-          </Card>
+          <div>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-6 text-right">שלח הודעה</h3>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                  <div className="space-y-1 text-right">
+                    <label htmlFor="name" className="text-sm font-medium">שם מלא</label>
+                    <Input 
+                      id="name"
+                      placeholder="השם המלא שלך"
+                      {...register('name')}
+                      className="text-right" 
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1 text-right">
+                    <label htmlFor="email" className="text-sm font-medium">אימייל</label>
+                    <Input 
+                      id="email"
+                      placeholder="האימייל שלך"
+                      {...register('email')}
+                      className="text-right"
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1 text-right">
+                    <label htmlFor="phone" className="text-sm font-medium">טלפון</label>
+                    <Input 
+                      id="phone"
+                      placeholder="מספר הטלפון שלך"
+                      {...register('phone')}
+                      className="text-right"
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1 text-right">
+                    <label htmlFor="message" className="text-sm font-medium">הודעה</label>
+                    <Textarea 
+                      id="message"
+                      placeholder="מה תרצה לשאול אותנו?"
+                      rows={5}
+                      {...register('message')}
+                      className="resize-none text-right"
+                    />
+                    {errors.message && (
+                      <p className="text-red-500 text-xs mt-1">{errors.message.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="pt-2">
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? 'שולח...' : 'שלח הודעה'}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </section>

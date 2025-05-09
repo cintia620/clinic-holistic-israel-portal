@@ -1,50 +1,70 @@
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const links = [
+    { name: "דף הבית", href: "/" },
+    { name: "אודות", href: "#about" },
+    { name: "טיפולים", href: "#services" },
+    { name: "המלצות", href: "#testimonials" },
+    { name: "יצירת קשר", href: "#contact" },
+    { name: "לקביעת תור", href: "/appointments" },
+  ];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="clinic-container flex justify-between items-center py-4">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-clinic-primary">
-            <span className="text-clinic-dark">קליניק</span> הוליסטיק
-          </h1>
-        </div>
+    <header className="sticky top-0 z-10 bg-white shadow-sm">
+      <div className="clinic-container py-4 flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold text-clinic-primary">
+          קליניקה הוליסטית
+        </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:block">
-          <ul className="flex gap-8">
-            <li><a href="#" className="text-clinic-dark hover:text-clinic-primary transition-colors">דף הבית</a></li>
-            <li><a href="#about" className="text-clinic-dark hover:text-clinic-primary transition-colors">אודות</a></li>
-            <li><a href="#services" className="text-clinic-dark hover:text-clinic-primary transition-colors">טיפולים</a></li>
-            <li><a href="#testimonials" className="text-clinic-dark hover:text-clinic-primary transition-colors">המלצות</a></li>
-            <li><a href="#contact" className="text-clinic-dark hover:text-clinic-primary transition-colors">צור קשר</a></li>
-          </ul>
+        <nav className="hidden md:flex space-x-6 flex-row-reverse">
+          {links.map((link) => (
+            <Link
+              key={link.name}
+              to={link.href}
+              className="text-gray-700 hover:text-clinic-primary transition-colors px-3 py-2 rounded-md text-sm font-medium"
+            >
+              {link.name}
+            </Link>
+          ))}
         </nav>
 
-        <Button className="md:hidden" variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          <Menu />
-        </Button>
+        {/* Mobile menu button */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="outline" size="icon">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">פתח תפריט</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <div className="flex flex-col space-y-4 mt-12">
+              {links.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-gray-700 hover:text-clinic-primary transition-colors text-lg font-medium text-right"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white py-4 shadow-md animate-fade-in">
-          <nav className="clinic-container">
-            <ul className="flex flex-col gap-4">
-              <li><a href="#" className="block py-2 text-clinic-dark hover:text-clinic-primary transition-colors" onClick={() => setIsMenuOpen(false)}>דף הבית</a></li>
-              <li><a href="#about" className="block py-2 text-clinic-dark hover:text-clinic-primary transition-colors" onClick={() => setIsMenuOpen(false)}>אודות</a></li>
-              <li><a href="#services" className="block py-2 text-clinic-dark hover:text-clinic-primary transition-colors" onClick={() => setIsMenuOpen(false)}>טיפולים</a></li>
-              <li><a href="#testimonials" className="block py-2 text-clinic-dark hover:text-clinic-primary transition-colors" onClick={() => setIsMenuOpen(false)}>המלצות</a></li>
-              <li><a href="#contact" className="block py-2 text-clinic-dark hover:text-clinic-primary transition-colors" onClick={() => setIsMenuOpen(false)}>צור קשר</a></li>
-            </ul>
-          </nav>
-        </div>
-      )}
     </header>
   );
 };
