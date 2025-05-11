@@ -2,7 +2,8 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { Resend } from "npm:resend@1.1.0";
 
-const ADMIN_EMAIL = "samy620@gmail.com";
+// Add multiple admin emails
+const ADMIN_EMAILS = ["samy620@gmail.com", "francelino76@gmail.com"];
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 // Allow CORS
@@ -39,12 +40,12 @@ serve(async (req) => {
       מזהה תור: ${appointmentId}
     `;
 
-    console.log(`Sending email notification to ${ADMIN_EMAIL}`);
+    console.log(`Sending email notification to ${ADMIN_EMAILS.join(", ")}`);
     
-    // Send the email using Resend
+    // Send the email using Resend to all admin emails
     const { data, error } = await resend.emails.send({
       from: "Appointment Notification <onboarding@resend.dev>",
-      to: ADMIN_EMAIL,
+      to: ADMIN_EMAILS,
       subject: subject,
       text: message,
     });
