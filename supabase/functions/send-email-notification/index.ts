@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { Resend } from "npm:resend@1.1.0";
 
 // Add multiple admin emails
-const ADMIN_EMAILS = ["samy620@gmail.com", "francelino76@gmail.com"];
+const ADMIN_EMAILS = ["samy620@gmail.com", "francelino76@gmail.com", "gorenofer1@gmail.com"];
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 // Allow CORS
