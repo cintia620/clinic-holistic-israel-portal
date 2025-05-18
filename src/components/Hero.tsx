@@ -1,8 +1,49 @@
 
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselPrevious, 
+  CarouselNext 
+} from "@/components/ui/carousel";
+import { Massage, Needle, Psychotherapy, Zap } from "lucide-react";
 
 const Hero = () => {
+  const treatments = [
+    {
+      id: 1,
+      name: "עיסוי רפואי",
+      image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35",
+      icon: <Massage className="h-6 w-6" />
+    },
+    {
+      id: 2,
+      name: "דיקור סיני",
+      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c",
+      icon: <Needle className="h-6 w-6" />
+    },
+    {
+      id: 3,
+      name: "פסיכותרפיה",
+      image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21",
+      icon: <Psychotherapy className="h-6 w-6" />
+    },
+    {
+      id: 4,
+      name: "PMFS טיפול",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef",
+      icon: <Massage className="h-6 w-6" />
+    },
+    {
+      id: 5,
+      name: "גלי הלם",
+      image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118",
+      icon: <Zap className="h-6 w-6" />
+    }
+  ];
+
   // Function to scroll to section or navigate and scroll to top
   const handleNavigation = (e, href) => {
     if (href.startsWith("#")) {
@@ -34,11 +75,29 @@ const Hero = () => {
           <div className="md:w-1/2 animate-float">
             <div className="aspect-square max-w-md mx-auto relative">
               <div className="absolute inset-0 bg-clinic-secondary/20 rounded-full -z-10 translate-x-4 translate-y-4"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1573653952836-3be7bbdf0ab1" 
-                alt="בית רפא אל - טיפול הוליסטי" 
-                className="rounded-full object-cover aspect-square shadow-lg"
-              />
+              
+              <Carousel className="w-full h-full rounded-full overflow-hidden">
+                <CarouselContent>
+                  {treatments.map((treatment) => (
+                    <CarouselItem key={treatment.id}>
+                      <div className="relative h-full w-full">
+                        <img 
+                          src={treatment.image} 
+                          alt={`בית רפא אל - ${treatment.name}`}
+                          className="rounded-full object-cover w-full h-full aspect-square shadow-lg"
+                        />
+                        <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg flex items-center gap-2">
+                          {treatment.icon}
+                          <span className="font-medium text-clinic-dark">{treatment.name}</span>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white" />
+                <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white" />
+              </Carousel>
+              
               <div className="absolute -top-6 -right-6 bg-clinic-secondary text-white p-4 rounded-full shadow-lg">
                 <p className="font-bold text-lg">15+</p>
                 <p className="text-xs">שנות נסיון</p>
