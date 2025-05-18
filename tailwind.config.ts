@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,11 +63,11 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				clinic: {
-					primary: '#8D6037', // Brown from logo
-					secondary: '#D5A97C', // Light brown from logo
-					accent: '#EBD6BB', // Beige from logo
-					light: '#FFF6EA', // Very light beige background
-					dark: '#5D3913' // Dark brown from logo
+					primary: '#00558C', // Blue from logo (Pantone blue)
+					secondary: '#55B95A', // Green from logo (Pantone green)
+					accent: '#E8F4E9', // Light green accent
+					light: '#F0F9FF', // Very light blue background
+					dark: '#003A61' // Darker blue from logo
 				}
 			},
 			borderRadius: {

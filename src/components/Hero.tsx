@@ -35,11 +35,11 @@ const Hero = () => {
             <div className="aspect-square max-w-md mx-auto relative">
               <div className="absolute inset-0 bg-clinic-secondary/20 rounded-full -z-10 translate-x-4 translate-y-4"></div>
               <img 
-                src="https://images.unsplash.com/photo-1600334129128-685c5582fd35" 
-                alt="בית רפא אל - טיפולי מסאז'" 
+                src="https://images.unsplash.com/photo-1573653952836-3be7bbdf0ab1" 
+                alt="בית רפא אל - טיפול הוליסטי" 
                 className="rounded-full object-cover aspect-square shadow-lg"
               />
-              <div className="absolute -top-6 -right-6 bg-clinic-accent text-clinic-dark p-4 rounded-full shadow-lg">
+              <div className="absolute -top-6 -right-6 bg-clinic-secondary text-white p-4 rounded-full shadow-lg">
                 <p className="font-bold text-lg">15+</p>
                 <p className="text-xs">שנות נסיון</p>
               </div>
