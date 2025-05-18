@@ -64,11 +64,11 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				clinic: {
-					primary: '#4a8e9b', // Teal
-					secondary: '#8fb299', // Sage green
-					accent: '#d4af37', // Gold
-					light: '#f5f5f5',
-					dark: '#2e4756'
+					primary: '#8D6037', // Brown from logo
+					secondary: '#D5A97C', // Light brown from logo
+					accent: '#EBD6BB', // Beige from logo
+					light: '#FFF6EA', // Very light beige background
+					dark: '#5D3913' // Dark brown from logo
 				}
 			},
 			borderRadius: {
