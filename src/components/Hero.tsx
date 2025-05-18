@@ -20,8 +20,8 @@ const Hero = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="md:w-1/2 animate-fade-in">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-clinic-dark mb-4">
-              מרכז רפואה הוליסטי<br />
-              <span className="text-clinic-primary">לאיזון גוף ונפש</span>
+              בית רפא אל<br />
+              <span className="text-clinic-primary">ע״ש רפי דיין</span>
             </h1>
             <p className="text-lg mb-8 text-gray-700 max-w-xl">
               הדרך שלך לחיים בריאים, מאוזנים ומלאי אנרגיה. הגישה ההוליסטית שלנו משלבת טיפולים מסורתיים וחדשניים, המותאמים אישית לצרכים הייחודיים שלך.
@@ -36,7 +36,7 @@ const Hero = () => {
               <div className="absolute inset-0 bg-clinic-primary/20 rounded-full -z-10 translate-x-4 translate-y-4"></div>
               <img 
                 src="https://images.unsplash.com/photo-1582562124811-c09040d0a901" 
-                alt="הוליסטיק קליניק" 
+                alt="בית רפא אל" 
                 className="rounded-full object-cover aspect-square shadow-lg"
               />
               <div className="absolute -top-6 -right-6 bg-clinic-accent text-white p-4 rounded-full shadow-lg">

@@ -51,10 +51,14 @@ const Header = () => {
       <div className="clinic-container py-4 flex justify-between items-center">
         <Link 
           to="/" 
-          className="text-2xl font-bold text-clinic-primary"
+          className="flex items-center"
           onClick={(e) => handleNavigation(e, "/")}
         >
-          קליניקה הוליסטית
+          <img 
+            src="/lovable-uploads/618dbf89-b53b-477a-a97b-d17f37715385.png" 
+            alt="בית רפא אל - ע״ש רפי דיין" 
+            className="h-16 mr-2"
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -81,6 +85,13 @@ const Header = () => {
           </SheetTrigger>
           <SheetContent side="right">
             <div className="flex flex-col space-y-4 mt-12">
+              <div className="flex justify-center mb-4">
+                <img 
+                  src="/lovable-uploads/618dbf89-b53b-477a-a97b-d17f37715385.png" 
+                  alt="בית רפא אל - ע״ש רפי דיין" 
+                  className="h-16"
+                />
+              </div>
               {links.map((link) => (
                 <Link
                   key={link.name}

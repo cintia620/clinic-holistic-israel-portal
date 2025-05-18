@@ -7,7 +7,13 @@ const Footer = () => {
       <div className="clinic-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <h3 className="text-xl font-bold mb-4 text-clinic-accent">קליניק הוליסטיק</h3>
+            <div className="flex items-center mb-4">
+              <img 
+                src="/lovable-uploads/618dbf89-b53b-477a-a97b-d17f37715385.png" 
+                alt="בית רפא אל - ע״ש רפי דיין" 
+                className="h-16 bg-white rounded-lg p-1"
+              />
+            </div>
             <p className="mb-4">
               המרכז המוביל לרפואה הוליסטית בישראל. אנו מחויבים להעניק לכם את הטיפול הטבעי והיעיל ביותר, המותאם אישית לצרכים שלכם.
             </p>
@@ -64,7 +70,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/70">
-          <p>© {new Date().getFullYear()} קליניק הוליסטיק. כל הזכויות שמורות.</p>
+          <p>© {new Date().getFullYear()} בית רפא אל - ע״ש רפי דיין. כל הזכויות שמורות.</p>
         </div>
       </div>
     </footer>
