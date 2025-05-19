@@ -8,7 +8,7 @@ import {
   CarouselPrevious, 
   CarouselNext 
 } from "@/components/ui/carousel";
-import { Massage, Needle, Psychotherapy, Zap } from "lucide-react";
+import { Syringe, Zap, Brain, Activity, HandMassage } from "lucide-react";
 
 const Hero = () => {
   const treatments = [
@@ -16,25 +16,25 @@ const Hero = () => {
       id: 1,
       name: "עיסוי רפואי",
       image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35",
-      icon: <Massage className="h-6 w-6" />
+      icon: <HandMassage className="h-6 w-6" />
     },
     {
       id: 2,
       name: "דיקור סיני",
       image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c",
-      icon: <Needle className="h-6 w-6" />
+      icon: <Syringe className="h-6 w-6" />
     },
     {
       id: 3,
       name: "פסיכותרפיה",
       image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21",
-      icon: <Psychotherapy className="h-6 w-6" />
+      icon: <Brain className="h-6 w-6" />
     },
     {
       id: 4,
       name: "PMFS טיפול",
       image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef",
-      icon: <Massage className="h-6 w-6" />
+      icon: <Activity className="h-6 w-6" />
     },
     {
       id: 5,
