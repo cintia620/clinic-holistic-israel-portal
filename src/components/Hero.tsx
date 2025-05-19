@@ -1,14 +1,16 @@
 
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { 
   Carousel, 
   CarouselContent, 
-  CarouselItem
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext
 } from "@/components/ui/carousel";
-import { Syringe, Zap, Brain, Activity, Hand } from "lucide-react";
-import { useCallback } from "react";
+import { Syringe, Zap, Brain, Activity, Hand, CircleArrowLeft, CircleArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const [api, setApi] = useState(null);
@@ -19,31 +21,36 @@ const Hero = () => {
       id: 1,
       name: "עיסוי רפואי",
       image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&q=80&w=600&h=600",
-      icon: <Hand className="h-6 w-6" />
+      icon: <Hand className="h-6 w-6" />,
+      description: "שחרור מתחים ושיפור זרימת הדם"
     },
     {
       id: 2,
       name: "דיקור סיני",
       image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600&h=600",
-      icon: <Syringe className="h-6 w-6" />
+      icon: <Syringe className="h-6 w-6" />,
+      description: "איזון אנרגטי ושחרור כאבים"
     },
     {
       id: 3,
       name: "פסיכותרפיה",
       image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&q=80&w=600&h=600",
-      icon: <Brain className="h-6 w-6" />
+      icon: <Brain className="h-6 w-6" />,
+      description: "טיפול נפשי ורגשי מעמיק"
     },
     {
       id: 4,
       name: "PMFS טיפול",
       image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600&h=600",
-      icon: <Activity className="h-6 w-6" />
+      icon: <Activity className="h-6 w-6" />,
+      description: "גירוי מגנטי לחיזוק השרירים"
     },
     {
       id: 5,
       name: "גלי הלם",
       image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=600&h=600",
-      icon: <Zap className="h-6 w-6" />
+      icon: <Zap className="h-6 w-6" />,
+      description: "טיפול בכאבים כרוניים"
     }
   ];
 
@@ -110,12 +117,11 @@ const Hero = () => {
               <a href="#services" className="px-6 py-3 border border-clinic-primary text-clinic-primary rounded-md hover:bg-clinic-primary/10 transition-colors duration-300 inline-block text-center font-medium" onClick={(e) => handleNavigation(e, "#services")}>הטיפולים שלנו</a>
             </div>
           </div>
+          
           <div className="md:w-1/2 animate-float">
-            <div className="aspect-square max-w-md mx-auto relative">
-              <div className="absolute inset-0 bg-clinic-secondary/20 rounded-full -z-10 translate-x-4 translate-y-4"></div>
-              
+            <div className="max-w-md mx-auto relative">
               <Carousel 
-                className="w-full h-full rounded-full overflow-hidden"
+                className="w-full overflow-hidden"
                 setApi={setApi}
                 opts={{
                   align: "center",
@@ -124,39 +130,73 @@ const Hero = () => {
               >
                 <CarouselContent>
                   {treatments.map((treatment) => (
-                    <CarouselItem key={treatment.id}>
-                      <div className="relative h-full w-full bg-clinic-light">
-                        <img 
-                          src={treatment.image} 
-                          alt={`בית רפא אל - ${treatment.name}`}
-                          className="rounded-full object-cover w-full h-full aspect-square shadow-lg"
-                          loading="eager"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            console.error(`Failed to load image: ${treatment.image}`);
-                            e.currentTarget.src = "/placeholder.svg";
-                          }}
-                        />
-                        <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg flex items-center gap-2">
-                          {treatment.icon}
-                          <span className="font-medium text-clinic-dark">{treatment.name}</span>
+                    <CarouselItem key={treatment.id} className="pt-6 md:pt-10">
+                      <div className="relative rounded-xl overflow-hidden bg-white shadow-lg p-4">
+                        <div className="aspect-square overflow-hidden rounded-lg shadow-inner">
+                          <img 
+                            src={treatment.image} 
+                            alt={`בית רפא אל - ${treatment.name}`}
+                            className="object-cover w-full h-full transition-transform duration-500 hover:scale-110"
+                            loading="eager"
+                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                              console.error(`Failed to load image: ${treatment.image}`);
+                              e.currentTarget.src = "/placeholder.svg";
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center gap-3 bg-clinic-light p-2 rounded-lg">
+                            <div className="bg-clinic-primary text-white p-2 rounded-md">
+                              {treatment.icon}
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-lg text-clinic-dark">{treatment.name}</h3>
+                              <p className="text-sm text-gray-600">{treatment.description}</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
                 
-                {/* Dot navigation instead of arrows */}
-                <div className="flex justify-center gap-2 mt-4 absolute bottom-[-2rem] left-0 right-0">
+                <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4 z-10">
+                  <Button 
+                    variant="outline"
+                    size="icon" 
+                    className="rounded-full shadow-md bg-white/70 backdrop-blur-sm border-gray-200 hover:bg-white"
+                    onClick={() => api?.scrollPrev()}
+                  >
+                    <CircleArrowLeft className="h-6 w-6 text-clinic-primary" />
+                    <span className="sr-only">Previous slide</span>
+                  </Button>
+                </div>
+                
+                <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4 z-10">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="rounded-full shadow-md bg-white/70 backdrop-blur-sm border-gray-200 hover:bg-white"
+                    onClick={() => api?.scrollNext()}
+                  >
+                    <CircleArrowRight className="h-6 w-6 text-clinic-primary" />
+                    <span className="sr-only">Next slide</span>
+                  </Button>
+                </div>
+                
+                {/* Dot navigation */}
+                <div className="flex justify-center gap-2 mt-4 absolute bottom-0 left-0 right-0">
                   {treatments.map((_, index) => (
                     <Button
                       key={index}
                       variant="ghost"
                       size="icon"
-                      className={`h-3 w-3 rounded-full p-0 ${
+                      className={cn(
+                        "h-2 w-2 rounded-full p-0 transition-all",
                         current === index 
-                          ? "bg-clinic-primary"
+                          ? "bg-clinic-primary scale-125" 
                           : "bg-gray-300 hover:bg-gray-400"
-                      }`}
+                      )}
                       onClick={() => scrollToSlide(index)}
                     >
                       <span className="sr-only">Go to slide {index + 1}</span>
