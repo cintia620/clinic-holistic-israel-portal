@@ -18,31 +18,31 @@ const Hero = () => {
     {
       id: 1,
       name: "עיסוי רפואי",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&q=80&w=600&h=600",
       icon: <Hand className="h-6 w-6" />
     },
     {
       id: 2,
       name: "דיקור סיני",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600&h=600",
       icon: <Syringe className="h-6 w-6" />
     },
     {
       id: 3,
       name: "פסיכותרפיה",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&q=80&w=600&h=600",
       icon: <Brain className="h-6 w-6" />
     },
     {
       id: 4,
       name: "PMFS טיפול",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600&h=600",
       icon: <Activity className="h-6 w-6" />
     },
     {
       id: 5,
       name: "גלי הלם",
-      image: "/placeholder.svg",
+      image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=600&h=600",
       icon: <Zap className="h-6 w-6" />
     }
   ];
@@ -125,7 +125,7 @@ const Hero = () => {
                 <CarouselContent>
                   {treatments.map((treatment) => (
                     <CarouselItem key={treatment.id}>
-                      <div className="relative h-full w-full bg-gray-100">
+                      <div className="relative h-full w-full bg-clinic-light">
                         <img 
                           src={treatment.image} 
                           alt={`בית רפא אל - ${treatment.name}`}
