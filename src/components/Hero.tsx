@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { 
   Carousel, 
   CarouselContent, 
-  CarouselItem, 
-  CarouselPrevious, 
-  CarouselNext 
+  CarouselItem
 } from "@/components/ui/carousel";
 import { Syringe, Zap, Brain, Activity, Hand } from "lucide-react";
 import { useCallback } from "react";
+import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   const [api, setApi] = useState(null);
@@ -87,6 +86,13 @@ const Hero = () => {
     };
   }, [api, onSelect]);
 
+  // Handle dot navigation click
+  const scrollToSlide = (index) => {
+    if (api) {
+      api.scrollTo(index);
+    }
+  };
+
   return (
     <section className="relative bg-gradient-to-b from-clinic-light to-white py-16 md:py-24">
       <div className="clinic-container">
@@ -125,6 +131,10 @@ const Hero = () => {
                           alt={`בית רפא אל - ${treatment.name}`}
                           className="rounded-full object-cover w-full h-full aspect-square shadow-lg"
                           loading="eager"
+                          onError={(e) => {
+                            console.error(`Failed to load image: ${treatment.image}`);
+                            e.target.src = "https://placehold.co/500x500/e2e8f0/64748b?text=תמונה+לא+זמינה";
+                          }}
                         />
                         <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg flex items-center gap-2">
                           {treatment.icon}
@@ -134,8 +144,25 @@ const Hero = () => {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white" />
-                <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white" />
+                
+                {/* Dot navigation instead of arrows */}
+                <div className="flex justify-center gap-2 mt-4 absolute bottom-[-2rem] left-0 right-0">
+                  {treatments.map((_, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      size="icon"
+                      className={`h-3 w-3 rounded-full p-0 ${
+                        current === index 
+                          ? "bg-clinic-primary"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                      onClick={() => scrollToSlide(index)}
+                    >
+                      <span className="sr-only">Go to slide {index + 1}</span>
+                    </Button>
+                  ))}
+                </div>
               </Carousel>
               
               <div className="absolute -top-6 -right-6 bg-clinic-secondary text-white p-4 rounded-full shadow-lg">
