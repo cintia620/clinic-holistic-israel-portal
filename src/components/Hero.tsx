@@ -9,37 +9,41 @@ import {
   CarouselNext 
 } from "@/components/ui/carousel";
 import { Syringe, Zap, Brain, Activity, Hand } from "lucide-react";
+import { useCallback } from "react";
 
 const Hero = () => {
+  const [api, setApi] = useState(null);
+  const [current, setCurrent] = useState(0);
+
   const treatments = [
     {
       id: 1,
       name: "עיסוי רפואי",
-      image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35",
+      image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&q=80&w=500&h=500",
       icon: <Hand className="h-6 w-6" />
     },
     {
       id: 2,
       name: "דיקור סיני",
-      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c",
+      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=500&h=500",
       icon: <Syringe className="h-6 w-6" />
     },
     {
       id: 3,
       name: "פסיכותרפיה",
-      image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21",
+      image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&q=80&w=500&h=500",
       icon: <Brain className="h-6 w-6" />
     },
     {
       id: 4,
       name: "PMFS טיפול",
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=500&h=500",
       icon: <Activity className="h-6 w-6" />
     },
     {
       id: 5,
       name: "גלי הלם",
-      image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118",
+      image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=500&h=500",
       icon: <Zap className="h-6 w-6" />
     }
   ];
@@ -54,6 +58,34 @@ const Hero = () => {
       }
     }
   };
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (!api) return;
+    
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 5000); // Change slide every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [api]);
+
+  // Update current slide index when carousel changes
+  const onSelect = useCallback(() => {
+    if (!api) return;
+    setCurrent(api.selectedScrollSnap());
+  }, [api]);
+
+  useEffect(() => {
+    if (!api) return;
+    
+    api.on("select", onSelect);
+    api.on("reInit", onSelect);
+    
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api, onSelect]);
 
   return (
     <section className="relative bg-gradient-to-b from-clinic-light to-white py-16 md:py-24">
@@ -76,7 +108,14 @@ const Hero = () => {
             <div className="aspect-square max-w-md mx-auto relative">
               <div className="absolute inset-0 bg-clinic-secondary/20 rounded-full -z-10 translate-x-4 translate-y-4"></div>
               
-              <Carousel className="w-full h-full rounded-full overflow-hidden">
+              <Carousel 
+                className="w-full h-full rounded-full overflow-hidden"
+                setApi={setApi}
+                opts={{
+                  align: "center",
+                  loop: true
+                }}
+              >
                 <CarouselContent>
                   {treatments.map((treatment) => (
                     <CarouselItem key={treatment.id}>
@@ -85,6 +124,7 @@ const Hero = () => {
                           src={treatment.image} 
                           alt={`בית רפא אל - ${treatment.name}`}
                           className="rounded-full object-cover w-full h-full aspect-square shadow-lg"
+                          loading="eager"
                         />
                         <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg flex items-center gap-2">
                           {treatment.icon}
