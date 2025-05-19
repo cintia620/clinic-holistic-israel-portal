@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { 
@@ -131,9 +130,9 @@ const Hero = () => {
                           alt={`בית רפא אל - ${treatment.name}`}
                           className="rounded-full object-cover w-full h-full aspect-square shadow-lg"
                           loading="eager"
-                          onError={(e) => {
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                             console.error(`Failed to load image: ${treatment.image}`);
-                            e.target.src = "https://placehold.co/500x500/e2e8f0/64748b?text=תמונה+לא+זמינה";
+                            e.currentTarget.src = "https://placehold.co/500x500/e2e8f0/64748b?text=תמונה+לא+זמינה";
                           }}
                         />
                         <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg flex items-center gap-2">
