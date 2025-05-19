@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { 
@@ -8,7 +7,7 @@ import {
   CarouselPrevious, 
   CarouselNext 
 } from "@/components/ui/carousel";
-import { Syringe, Zap, Brain, Activity, HandMassage } from "lucide-react";
+import { Syringe, Zap, Brain, Activity, Hands } from "lucide-react";
 
 const Hero = () => {
   const treatments = [
@@ -16,7 +15,7 @@ const Hero = () => {
       id: 1,
       name: "עיסוי רפואי",
       image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35",
-      icon: <HandMassage className="h-6 w-6" />
+      icon: <Hands className="h-6 w-6" />
     },
     {
       id: 2,
