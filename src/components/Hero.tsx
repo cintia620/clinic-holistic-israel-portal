@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { 
@@ -17,31 +18,31 @@ const Hero = () => {
     {
       id: 1,
       name: "עיסוי רפואי",
-      image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "/placeholder.svg",
       icon: <Hand className="h-6 w-6" />
     },
     {
       id: 2,
       name: "דיקור סיני",
-      image: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "/placeholder.svg",
       icon: <Syringe className="h-6 w-6" />
     },
     {
       id: 3,
       name: "פסיכותרפיה",
-      image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "/placeholder.svg",
       icon: <Brain className="h-6 w-6" />
     },
     {
       id: 4,
       name: "PMFS טיפול",
-      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "/placeholder.svg",
       icon: <Activity className="h-6 w-6" />
     },
     {
       id: 5,
       name: "גלי הלם",
-      image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "/placeholder.svg",
       icon: <Zap className="h-6 w-6" />
     }
   ];
@@ -124,7 +125,7 @@ const Hero = () => {
                 <CarouselContent>
                   {treatments.map((treatment) => (
                     <CarouselItem key={treatment.id}>
-                      <div className="relative h-full w-full">
+                      <div className="relative h-full w-full bg-gray-100">
                         <img 
                           src={treatment.image} 
                           alt={`בית רפא אל - ${treatment.name}`}
@@ -132,7 +133,7 @@ const Hero = () => {
                           loading="eager"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                             console.error(`Failed to load image: ${treatment.image}`);
-                            e.currentTarget.src = "https://placehold.co/500x500/e2e8f0/64748b?text=תמונה+לא+זמינה";
+                            e.currentTarget.src = "/placeholder.svg";
                           }}
                         />
                         <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg flex items-center gap-2">
