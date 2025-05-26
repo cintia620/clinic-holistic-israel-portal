@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,10 +35,12 @@ const AssessmentTake = () => {
 
       if (error) throw error;
       
-      // Convert the Json type to our Assessment type
+      // Safely convert the Json type to our Assessment type
       const assessmentData: Assessment = {
         ...data,
-        questions: Array.isArray(data.questions) ? data.questions as Question[] : []
+        questions: Array.isArray(data.questions) 
+          ? (data.questions as unknown as Question[])
+          : []
       };
       
       setAssessment(assessmentData);
