@@ -11,6 +11,7 @@ import Assessment from "./pages/Assessment";
 import AssessmentTake from "./pages/AssessmentTake";
 import HealthJournal from "./pages/HealthJournal";
 import Meditation from "./pages/Meditation";
+import HumanBody from "./pages/HumanBody";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/assessment/:id" element={<AssessmentTake />} />
           <Route path="/health-journal" element={<HealthJournal />} />
           <Route path="/meditation" element={<Meditation />} />
+          <Route path="/human-body" element={<HumanBody />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
