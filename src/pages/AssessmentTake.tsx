@@ -1,143 +1,117 @@
 
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, ArrowRight, Brain } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-
-interface Question {
-  id: number;
-  question: string;
-  type: 'scale' | 'multiple_choice' | 'single_choice';
-  options?: string[];
-  scale?: {
-    min: number;
-    max: number;
-    labels?: { [key: string]: string };
-  };
-}
-
-interface Assessment {
-  id: string;
-  title: string;
-  description: string;
-  questions: Question[];
-}
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { Assessment, Question } from '@/types/assessment';
+import Header from '@/components/Header';
 
 const AssessmentTake = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [assessment, setAssessment] = useState<Assessment | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [responses, setResponses] = useState<{ [key: number]: any }>({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [responses, setResponses] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchAssessment = async () => {
-      if (!id) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('assessments')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching assessment:', error);
-          return;
-        }
-
-        setAssessment(data);
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAssessment();
+    if (id) {
+      fetchAssessment();
+    }
   }, [id]);
 
-  const handleResponse = (questionId: number, value: any) => {
+  const fetchAssessment = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('assessments')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      
+      // Convert the Json type to our Assessment type
+      const assessmentData: Assessment = {
+        ...data,
+        questions: Array.isArray(data.questions) ? data.questions as Question[] : []
+      };
+      
+      setAssessment(assessmentData);
+    } catch (error) {
+      console.error('Error fetching assessment:', error);
+      toast.error('שגיאה בטעינת השאלון');
+      navigate('/assessment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResponseChange = (questionId: number, value: any) => {
     setResponses(prev => ({
       ...prev,
       [questionId]: value
     }));
   };
 
-  const nextQuestion = () => {
-    if (assessment && currentQuestion < assessment.questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
+  const handleNext = () => {
+    if (assessment && currentQuestionIndex < assessment.questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
     }
   };
 
-  const prevQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
 
-  const submitAssessment = async () => {
-    if (!assessment) return;
-
-    setSubmitting(true);
+  const handleSubmit = async () => {
     try {
-      // Calculate a simple score based on responses
-      const score = Object.values(responses).reduce((acc: number, val) => {
-        if (typeof val === 'number') return acc + val;
-        if (Array.isArray(val)) return acc + val.length;
-        return acc + 1;
-      }, 0);
-
-      const { error } = await supabase
-        .from('assessment_responses')
-        .insert([{
-          assessment_id: assessment.id,
-          responses: responses,
-          score: score,
-          recommendations: generateRecommendations(responses)
-        }]);
-
-      if (error) {
-        console.error('Error submitting assessment:', error);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('יש להתחבר כדי לשמור תוצאות');
         return;
       }
 
-      navigate(`/assessment/${assessment.id}/results`);
+      const { error } = await supabase
+        .from('assessment_responses')
+        .insert({
+          user_id: user.id,
+          assessment_id: id,
+          responses,
+          score: calculateScore()
+        });
+
+      if (error) throw error;
+
+      toast.success('השאלון נשמר בהצלחה!');
+      navigate('/assessment');
     } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setSubmitting(false);
+      console.error('Error saving assessment:', error);
+      toast.error('שגיאה בשמירת השאלון');
     }
   };
 
-  const generateRecommendations = (responses: { [key: number]: any }) => {
-    // Simple recommendation logic based on responses
-    const recommendations = [];
+  const calculateScore = () => {
+    // Simple scoring logic - can be enhanced based on assessment's scoring_method
+    let total = 0;
+    let count = 0;
     
-    if (responses[1] && responses[1] < 5) {
-      recommendations.push("מומלץ על טיפולי אנרגיה וחיזוק מערכת החיסון");
-    }
+    Object.values(responses).forEach(response => {
+      if (typeof response === 'number') {
+        total += response;
+        count++;
+      }
+    });
     
-    if (responses[2] && responses[2].includes("כאבי ראש")) {
-      recommendations.push("מומלץ על טיפול בדיקור סיני ועיסוי רפואי");
-    }
-    
-    if (responses[3] && (responses[3].includes("חרדה") || responses[3].includes("דכאון"))) {
-      recommendations.push("מומלץ על פסיכותרפיה ומדיטציה מודרכת");
-    }
-
-    return recommendations.join(". ") || "מומלץ על הערכה נוספת עם המטפל שלנו.";
+    return count > 0 ? Math.round(total / count) : 0;
   };
 
   const renderQuestion = (question: Question) => {
@@ -146,25 +120,18 @@ const AssessmentTake = () => {
     switch (question.type) {
       case 'scale':
         return (
-          <div className="space-y-6">
-            <div className="text-center">
-              <span className="text-3xl font-bold text-clinic-primary">
-                {currentResponse || question.scale?.min || 1}
-              </span>
-              <p className="text-gray-600 mt-2">
-                {question.scale?.labels?.[currentResponse] || ""}
-              </p>
-            </div>
+          <div className="space-y-4">
             <Slider
               value={[currentResponse || question.scale?.min || 1]}
-              onValueChange={(value) => handleResponse(question.id, value[0])}
+              onValueChange={(value) => handleResponseChange(question.id, value[0])}
               max={question.scale?.max || 10}
               min={question.scale?.min || 1}
               step={1}
               className="w-full"
             />
-            <div className="flex justify-between text-sm text-gray-500">
+            <div className="flex justify-between text-sm text-gray-600">
               <span>{question.scale?.labels?.[question.scale.min.toString()] || question.scale?.min}</span>
+              <span>הערך הנוכחי: {currentResponse || question.scale?.min || 1}</span>
               <span>{question.scale?.labels?.[question.scale.max.toString()] || question.scale?.max}</span>
             </div>
           </div>
@@ -176,40 +143,33 @@ const AssessmentTake = () => {
             {question.options?.map((option, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <Checkbox
-                  id={`option-${index}`}
-                  checked={currentResponse?.includes(option) || false}
+                  id={`${question.id}-${index}`}
+                  checked={Array.isArray(currentResponse) ? currentResponse.includes(option) : false}
                   onCheckedChange={(checked) => {
-                    const current = currentResponse || [];
+                    const currentArray = Array.isArray(currentResponse) ? currentResponse : [];
                     if (checked) {
-                      handleResponse(question.id, [...current, option]);
+                      handleResponseChange(question.id, [...currentArray, option]);
                     } else {
-                      handleResponse(question.id, current.filter((item: string) => item !== option));
+                      handleResponseChange(question.id, currentArray.filter((item: string) => item !== option));
                     }
                   }}
                 />
-                <Label htmlFor={`option-${index}`} className="text-right flex-1">
+                <label htmlFor={`${question.id}-${index}`} className="text-sm font-medium">
                   {option}
-                </Label>
+                </label>
               </div>
             ))}
           </div>
         );
 
-      case 'single_choice':
+      case 'text':
         return (
-          <RadioGroup
-            value={currentResponse || ""}
-            onValueChange={(value) => handleResponse(question.id, value)}
-          >
-            {question.options?.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`radio-${index}`} />
-                <Label htmlFor={`radio-${index}`} className="text-right flex-1">
-                  {option}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
+          <Textarea
+            value={currentResponse || ''}
+            onChange={(e) => handleResponseChange(question.id, e.target.value)}
+            placeholder="הקלידו את תשובתכם כאן..."
+            className="w-full"
+          />
         );
 
       default:
@@ -219,106 +179,72 @@ const AssessmentTake = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-clinic-light to-white">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-clinic-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">טוען הערכה...</p>
-          </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">טוען שאלון...</div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   if (!assessment) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-clinic-light to-white">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">הערכה לא נמצאה</h2>
-            <p className="text-gray-600">ההערכה שביקשתם לא קיימת במערכת.</p>
-          </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">שאלון לא נמצא</div>
         </div>
-        <Footer />
       </div>
     );
   }
 
-  const currentQ = assessment.questions[currentQuestion];
-  const progress = ((currentQuestion + 1) / assessment.questions.length) * 100;
-  const canProceed = responses[currentQ.id] !== undefined;
-  const isLastQuestion = currentQuestion === assessment.questions.length - 1;
+  const currentQuestion = assessment.questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / assessment.questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-clinic-light to-white">
+    <div className="min-h-screen bg-gray-50 font-heebo" dir="rtl">
       <Header />
-      
-      <div className="py-16">
-        <div className="max-w-2xl mx-auto px-4">
-          {/* Progress */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">
-                שאלה {currentQuestion + 1} מתוך {assessment.questions.length}
-              </span>
-              <span className="text-sm text-clinic-primary font-medium">
-                {Math.round(progress)}% הושלם
-              </span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          {/* Question Card */}
-          <Card className="shadow-xl border-0">
-            <CardHeader>
-              <CardTitle className="text-xl text-clinic-dark text-right">
-                {currentQ.question}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {renderQuestion(currentQ)}
-            </CardContent>
-          </Card>
-
-          {/* Navigation */}
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={prevQuestion}
-              disabled={currentQuestion === 0}
-              className="flex items-center gap-2"
-            >
-              <ArrowRight className="h-4 w-4" />
-              קודם
-            </Button>
-
-            {isLastQuestion ? (
-              <Button
-                onClick={submitAssessment}
-                disabled={!canProceed || submitting}
-                className="clinic-button flex items-center gap-2"
-              >
-                {submitting ? "שולח..." : "סיים הערכה"}
-              </Button>
-            ) : (
-              <Button
-                onClick={nextQuestion}
-                disabled={!canProceed}
-                className="clinic-button flex items-center gap-2"
-              >
-                הבא
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle>{assessment.title}</CardTitle>
+            <CardDescription>{assessment.description}</CardDescription>
+            <Progress value={progress} className="w-full" />
+            <p className="text-sm text-gray-600">
+              שאלה {currentQuestionIndex + 1} מתוך {assessment.questions.length}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {currentQuestion && (
+              <div>
+                <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
+                {renderQuestion(currentQuestion)}
+              </div>
             )}
-          </div>
-        </div>
+            
+            <div className="flex justify-between">
+              <Button
+                onClick={handlePrevious}
+                disabled={currentQuestionIndex === 0}
+                variant="outline"
+              >
+                הקודם
+              </Button>
+              
+              {currentQuestionIndex === assessment.questions.length - 1 ? (
+                <Button onClick={handleSubmit}>
+                  סיום השאלון
+                </Button>
+              ) : (
+                <Button onClick={handleNext}>
+                  הבא
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      <Footer />
     </div>
   );
 };

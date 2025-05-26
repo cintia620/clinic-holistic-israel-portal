@@ -1,29 +1,20 @@
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { 
-  Plus, 
-  TrendingUp, 
-  Moon, 
-  Heart, 
-  Activity, 
-  Brain,
-  Calendar as CalendarIcon,
-  Save
-} from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
+import Header from '@/components/Header';
 
-interface JournalEntry {
-  id: string;
+interface HealthEntry {
+  id?: string;
   date: string;
   energy_level: number;
   mood: number;
@@ -33,353 +24,263 @@ interface JournalEntry {
 }
 
 const HealthJournal = () => {
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [currentEntry, setCurrentEntry] = useState<Partial<JournalEntry>>({
+  const [entries, setEntries] = useState<HealthEntry[]>([]);
+  const [currentEntry, setCurrentEntry] = useState<HealthEntry>({
+    date: format(new Date(), 'yyyy-MM-dd'),
     energy_level: 5,
     mood: 5,
     sleep_hours: 8,
     symptoms: [],
-    notes: ""
+    notes: ''
   });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const commonSymptoms = [
-    "כאב ראש", "עייפות", "מתח", "כאב גב", "בעיות שינה",
-    "בעיות עיכול", "חרדה", "עצבנות", "קושי בריכוז"
+  const symptomOptions = [
+    'כאב ראש', 'כאב גב', 'עייפות', 'בעיות שינה', 
+    'בעיות עיכול', 'מתח שרירים', 'חרדה', 'דכאון'
   ];
 
   useEffect(() => {
-    fetchEntries();
+    checkUser();
   }, []);
 
-  useEffect(() => {
-    // Load entry for selected date
-    const dateStr = selectedDate.toISOString().split('T')[0];
-    const existingEntry = entries.find(entry => entry.date === dateStr);
-    
-    if (existingEntry) {
-      setCurrentEntry(existingEntry);
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setUser(user);
+      fetchEntries(user.id);
     } else {
-      setCurrentEntry({
-        energy_level: 5,
-        mood: 5,
-        sleep_hours: 8,
-        symptoms: [],
-        notes: ""
-      });
+      toast.error('יש להתחבר כדי להשתמש ביומן הבריאות');
+      setLoading(false);
     }
-  }, [selectedDate, entries]);
+  };
 
-  const fetchEntries = async () => {
+  const fetchEntries = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('health_journal_entries')
         .select('*')
+        .eq('user_id', userId)
         .order('date', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching entries:', error);
-        return;
-      }
-
+      if (error) throw error;
       setEntries(data || []);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching entries:', error);
+      toast.error('שגיאה בטעינת היומן');
     } finally {
       setLoading(false);
     }
   };
 
-  const saveEntry = async () => {
-    setSaving(true);
-    try {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      const existingEntry = entries.find(entry => entry.date === dateStr);
+  const handleSymptomChange = (symptom: string, checked: boolean) => {
+    setCurrentEntry(prev => ({
+      ...prev,
+      symptoms: checked 
+        ? [...prev.symptoms, symptom]
+        : prev.symptoms.filter(s => s !== symptom)
+    }));
+  };
 
-      const entryData = {
-        date: dateStr,
-        energy_level: currentEntry.energy_level,
-        mood: currentEntry.mood,
-        sleep_hours: currentEntry.sleep_hours,
-        symptoms: currentEntry.symptoms,
-        notes: currentEntry.notes
+  const handleSaveEntry = async () => {
+    if (!user) {
+      toast.error('יש להתחבר כדי לשמור רשומות');
+      return;
+    }
+
+    try {
+      const entryToSave = {
+        ...currentEntry,
+        user_id: user.id
       };
 
-      if (existingEntry) {
-        const { error } = await supabase
-          .from('health_journal_entries')
-          .update(entryData)
-          .eq('id', existingEntry.id);
+      const { error } = await supabase
+        .from('health_journal_entries')
+        .insert(entryToSave);
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('health_journal_entries')
-          .insert([entryData]);
+      if (error) throw error;
 
-        if (error) throw error;
-      }
-
-      await fetchEntries();
+      toast.success('הרשומה נשמרה בהצלחה!');
+      fetchEntries(user.id);
+      
+      // Reset form
+      setCurrentEntry({
+        date: format(new Date(), 'yyyy-MM-dd'),
+        energy_level: 5,
+        mood: 5,
+        sleep_hours: 8,
+        symptoms: [],
+        notes: ''
+      });
     } catch (error) {
       console.error('Error saving entry:', error);
-    } finally {
-      setSaving(false);
+      toast.error('שגיאה בשמירת הרשומה');
     }
-  };
-
-  const toggleSymptom = (symptom: string) => {
-    const symptoms = currentEntry.symptoms || [];
-    if (symptoms.includes(symptom)) {
-      setCurrentEntry(prev => ({
-        ...prev,
-        symptoms: symptoms.filter(s => s !== symptom)
-      }));
-    } else {
-      setCurrentEntry(prev => ({
-        ...prev,
-        symptoms: [...symptoms, symptom]
-      }));
-    }
-  };
-
-  const getEntryForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return entries.find(entry => entry.date === dateStr);
-  };
-
-  const getAverageMetrics = () => {
-    if (entries.length === 0) return { energy: 0, mood: 0, sleep: 0 };
-    
-    const total = entries.reduce((acc, entry) => ({
-      energy: acc.energy + (entry.energy_level || 0),
-      mood: acc.mood + (entry.mood || 0),
-      sleep: acc.sleep + (entry.sleep_hours || 0)
-    }), { energy: 0, mood: 0, sleep: 0 });
-
-    return {
-      energy: Math.round(total.energy / entries.length),
-      mood: Math.round(total.mood / entries.length),
-      sleep: Math.round((total.sleep / entries.length) * 10) / 10
-    };
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-clinic-light to-white">
+      <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-clinic-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">טוען יומן בריאות...</p>
-          </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">טוען יומן...</div>
         </div>
-        <Footer />
       </div>
     );
   }
 
-  const averages = getAverageMetrics();
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">יש להתחבר כדי להשתמש ביומן הבריאות</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-clinic-light to-white">
+    <div className="min-h-screen bg-gray-50 font-heebo" dir="rtl">
       <Header />
-      
-      <div className="py-16">
-        <div className="clinic-container">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-clinic-dark mb-6">
-              יומן בריאות דיגיטלי
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              עקבו אחר המצב הבריאותי שלכם, תתעדו תסמינים ותחושות, וראו את ההתקדמות לאורך זמן.
-              היומן שלכם יעזור למטפל להבין טוב יותר את המצב שלכם ולהתאים את הטיפול.
-            </p>
-          </div>
-
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">רמת אנרגיה ממוצעת</CardTitle>
-                <Activity className="h-4 w-4 text-clinic-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-clinic-primary">{averages.energy}/10</div>
-                <p className="text-xs text-muted-foreground">בחודש האחרון</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">מצב רוח ממוצע</CardTitle>
-                <Heart className="h-4 w-4 text-clinic-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-clinic-primary">{averages.mood}/10</div>
-                <p className="text-xs text-muted-foreground">בחודש האחרון</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">שעות שינה ממוצעות</CardTitle>
-                <Moon className="h-4 w-4 text-clinic-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-clinic-primary">{averages.sleep}h</div>
-                <p className="text-xs text-muted-foreground">בחודש האחרון</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Calendar */}
-            <Card className="lg:col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  לוח שנה
-                </CardTitle>
-                <CardDescription>
-                  בחרו תאריך לעריכת רישום
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
-                  className="rounded-md border"
-                  modifiers={{
-                    hasEntry: (date) => !!getEntryForDate(date)
-                  }}
-                  modifiersStyles={{
-                    hasEntry: { 
-                      backgroundColor: 'rgb(var(--clinic-primary) / 0.1)',
-                      color: 'rgb(var(--clinic-primary))',
-                      fontWeight: 'bold'
-                    }
-                  }}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Entry Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle>רשומה חדשה</CardTitle>
+              <CardDescription>הוסיפו רשומה חדשה ליומן הבריאות שלכם</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label htmlFor="date">תאריך</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={currentEntry.date}
+                  onChange={(e) => setCurrentEntry(prev => ({ ...prev, date: e.target.value }))}
                 />
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Entry Form */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  רישום ליום {selectedDate.toLocaleDateString('he-IL')}
-                </CardTitle>
-                <CardDescription>
-                  תעדו את המצב הבריאותי שלכם היום
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Energy Level */}
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">רמת אנרגיה: {currentEntry.energy_level}/10</Label>
-                  <Slider
-                    value={[currentEntry.energy_level || 5]}
-                    onValueChange={(value) => setCurrentEntry(prev => ({ ...prev, energy_level: value[0] }))}
-                    max={10}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>נמוכה מאוד</span>
-                    <span>גבוהה מאוד</span>
-                  </div>
+              <div>
+                <Label>רמת אנרגיה: {currentEntry.energy_level}</Label>
+                <Slider
+                  value={[currentEntry.energy_level]}
+                  onValueChange={(value) => setCurrentEntry(prev => ({ ...prev, energy_level: value[0] }))}
+                  max={10}
+                  min={1}
+                  step={1}
+                  className="w-full mt-2"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>נמוכה</span>
+                  <span>גבוהה</span>
                 </div>
+              </div>
 
-                {/* Mood */}
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">מצב רוח: {currentEntry.mood}/10</Label>
-                  <Slider
-                    value={[currentEntry.mood || 5]}
-                    onValueChange={(value) => setCurrentEntry(prev => ({ ...prev, mood: value[0] }))}
-                    max={10}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>עצוב מאוד</span>
-                    <span>שמח מאוד</span>
-                  </div>
+              <div>
+                <Label>מצב רוח: {currentEntry.mood}</Label>
+                <Slider
+                  value={[currentEntry.mood]}
+                  onValueChange={(value) => setCurrentEntry(prev => ({ ...prev, mood: value[0] }))}
+                  max={10}
+                  min={1}
+                  step={1}
+                  className="w-full mt-2"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>רע</span>
+                  <span>מצוין</span>
                 </div>
+              </div>
 
-                {/* Sleep Hours */}
-                <div className="space-y-2">
-                  <Label htmlFor="sleep" className="text-base font-medium">שעות שינה</Label>
-                  <Input
-                    id="sleep"
-                    type="number"
-                    min="0"
-                    max="24"
-                    step="0.5"
-                    value={currentEntry.sleep_hours || 8}
-                    onChange={(e) => setCurrentEntry(prev => ({ 
-                      ...prev, 
-                      sleep_hours: parseFloat(e.target.value) || 0 
-                    }))}
-                    className="w-32"
-                  />
+              <div>
+                <Label htmlFor="sleep">שעות שינה</Label>
+                <Input
+                  id="sleep"
+                  type="number"
+                  min="0"
+                  max="24"
+                  step="0.5"
+                  value={currentEntry.sleep_hours}
+                  onChange={(e) => setCurrentEntry(prev => ({ ...prev, sleep_hours: parseFloat(e.target.value) || 0 }))}
+                />
+              </div>
+
+              <div>
+                <Label>תסמינים</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {symptomOptions.map((symptom) => (
+                    <div key={symptom} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={symptom}
+                        checked={currentEntry.symptoms.includes(symptom)}
+                        onCheckedChange={(checked) => handleSymptomChange(symptom, !!checked)}
+                      />
+                      <Label htmlFor={symptom} className="text-sm">{symptom}</Label>
+                    </div>
+                  ))}
                 </div>
+              </div>
 
-                {/* Symptoms */}
-                <div className="space-y-3">
-                  <Label className="text-base font-medium">תסמינים</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {commonSymptoms.map((symptom) => (
-                      <Badge
-                        key={symptom}
-                        variant={currentEntry.symptoms?.includes(symptom) ? "default" : "outline"}
-                        className={`cursor-pointer transition-colors ${
-                          currentEntry.symptoms?.includes(symptom) 
-                            ? "bg-clinic-primary hover:bg-clinic-primary/80" 
-                            : "hover:bg-clinic-primary/10"
-                        }`}
-                        onClick={() => toggleSymptom(symptom)}
-                      >
-                        {symptom}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+              <div>
+                <Label htmlFor="notes">הערות</Label>
+                <Textarea
+                  id="notes"
+                  value={currentEntry.notes}
+                  onChange={(e) => setCurrentEntry(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="הערות נוספות..."
+                />
+              </div>
 
-                {/* Notes */}
-                <div className="space-y-2">
-                  <Label htmlFor="notes" className="text-base font-medium">הערות נוספות</Label>
-                  <Textarea
-                    id="notes"
-                    placeholder="איך הרגשתם היום? מה עבר עליכם?"
-                    value={currentEntry.notes || ""}
-                    onChange={(e) => setCurrentEntry(prev => ({ ...prev, notes: e.target.value }))}
-                    rows={4}
-                  />
-                </div>
+              <Button onClick={handleSaveEntry} className="w-full">
+                שמירת רשומה
+              </Button>
+            </CardContent>
+          </Card>
 
-                {/* Save Button */}
-                <Button
-                  onClick={saveEntry}
-                  disabled={saving}
-                  className="w-full clinic-button flex items-center gap-2"
-                >
-                  <Save className="h-4 w-4" />
-                  {saving ? "שומר..." : "שמור רישום"}
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Entries List */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">הרשומות שלי</h2>
+            {entries.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <p className="text-gray-500">עדיין לא הוספתם רשומות ליומן</p>
+                </CardContent>
+              </Card>
+            ) : (
+              entries.map((entry) => (
+                <Card key={entry.id}>
+                  <CardContent className="pt-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="font-semibold">
+                        {format(new Date(entry.date), 'dd/MM/yyyy', { locale: he })}
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>אנרגיה: {entry.energy_level}/10</div>
+                      <div>מצב רוח: {entry.mood}/10</div>
+                      <div>שינה: {entry.sleep_hours} שעות</div>
+                      <div>תסמינים: {entry.symptoms.length}</div>
+                    </div>
+                    {entry.symptoms.length > 0 && (
+                      <div className="mt-2">
+                        <strong>תסמינים:</strong> {entry.symptoms.join(', ')}
+                      </div>
+                    )}
+                    {entry.notes && (
+                      <div className="mt-2">
+                        <strong>הערות:</strong> {entry.notes}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };
