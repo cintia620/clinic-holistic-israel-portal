@@ -25,6 +25,7 @@ const Header = () => {
     { name: "הערכה אישית", href: "/assessment" },
     { name: "יומן בריאות", href: "/health-journal" },
     { name: "מדיטציה", href: "/meditation" },
+    { name: "מודל גוף האדם", href: "/human-body" },
     { name: "המלצות", href: "#testimonials" },
     { name: "יצירת קשר", href: "#contact" },
     { name: "לקביעת תור", href: "/appointments" },
