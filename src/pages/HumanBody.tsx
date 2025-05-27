@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Text } from '@react-three/drei';
+import { OrbitControls, Environment } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
@@ -22,69 +21,70 @@ const HumanBody = () => {
   const [selectedPart, setSelectedPart] = useState<BodyPart | null>(null);
   const [isRotating, setIsRotating] = useState(true);
 
+  // Anatomically proportioned body parts based on human anatomy
   const bodyParts: BodyPart[] = [
     {
       id: 'head',
       name: 'Head',
       nameHe: 'ראש',
-      description: 'המוח והמערכת העצבית המרכזית',
-      color: '#FFB6C1',
-      position: [0, 2.5, 0],
-      size: [0.8, 0.8, 0.8]
+      description: 'המוח, גולגולת ואיברי החושים - מרכז הבקרה של הגוף',
+      color: '#FFCCCB',
+      position: [0, 2.8, 0],
+      size: [1, 1, 1] // Sphere radius will be calculated
     },
     {
       id: 'chest',
       name: 'Chest',
       nameHe: 'חזה',
-      description: 'הלב, הריאות ומערכת הנשימה',
-      color: '#87CEEB',
-      position: [0, 1.2, 0],
-      size: [1.2, 1, 0.6]
+      description: 'כלוב הצלעות, הלב והריאות - מרכז מערכת הנשימה והדם',
+      color: '#FF6B6B',
+      position: [0, 1.5, 0],
+      size: [1.4, 1.2, 0.8] // Wider chest, anatomical proportions
     },
     {
       id: 'abdomen',
       name: 'Abdomen',
       nameHe: 'בטן',
-      description: 'מערכת העיכול והכבד',
-      color: '#98FB98',
-      position: [0, 0, 0],
-      size: [1, 0.8, 0.5]
+      description: 'מערכת העיכול, הכבד, הכליות ואיברים חיוניים',
+      color: '#4ECDC4',
+      position: [0, 0.2, 0],
+      size: [1.1, 1, 0.7] // Slightly narrower than chest
     },
     {
       id: 'leftArm',
       name: 'Left Arm',
       nameHe: 'זרוע שמאל',
-      description: 'שרירים, עצמות ומפרקים',
-      color: '#DDA0DD',
-      position: [-1.5, 1.2, 0],
-      size: [0.3, 1.5, 0.3]
+      description: 'עצמות, שרירים, עצבים וכלי דם - כלי לפעילות ויצירה',
+      color: '#95E1D3',
+      position: [-1.3, 1.8, 0],
+      size: [0.25, 1.8, 0.25] // More realistic arm proportions
     },
     {
       id: 'rightArm',
       name: 'Right Arm',
       nameHe: 'זרוע ימין',
-      description: 'שרירים, עצמות ומפרקים',
-      color: '#DDA0DD',
-      position: [1.5, 1.2, 0],
-      size: [0.3, 1.5, 0.3]
+      description: 'עצמות, שרירים, עצבים וכלי דם - כלי לפעילות ויצירה',
+      color: '#95E1D3',
+      position: [1.3, 1.8, 0],
+      size: [0.25, 1.8, 0.25]
     },
     {
       id: 'leftLeg',
       name: 'Left Leg',
       nameHe: 'רגל שמאל',
-      description: 'שרירים, עצמות ומערכת הדם',
-      color: '#F0E68C',
-      position: [-0.4, -1.5, 0],
-      size: [0.4, 2, 0.4]
+      description: 'עצם הירך, השוק, שרירים חזקים - תומכת במשקל ובתנועה',
+      color: '#A8E6CF',
+      position: [-0.35, -1.3, 0],
+      size: [0.35, 2.2, 0.35] // Stronger, longer legs
     },
     {
       id: 'rightLeg',
       name: 'Right Leg',
       nameHe: 'רגל ימין',
-      description: 'שרירים, עצמות ומערכת הדם',
-      color: '#F0E68C',
-      position: [0.4, -1.5, 0],
-      size: [0.4, 2, 0.4]
+      description: 'עצם הירך, השוק, שרירים חזקים - תומכת במשקל ובתנועה',
+      color: '#A8E6CF',
+      position: [0.35, -1.3, 0],
+      size: [0.35, 2.2, 0.35]
     }
   ];
 
@@ -94,10 +94,10 @@ const HumanBody = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            מודל תלת-ממדי של גוף האדם
+            מודל אנטומי תלת-ממדי של גוף האדם
           </h1>
           <p className="text-lg text-gray-600">
-            לחץ על חלקי הגוף השונים כדי ללמוד עליהם
+            חקר את מבנה הגוף האנושי - לחץ על חלקי הגוף השונים כדי ללמוד על האנטומיה והפיזיולוגיה
           </p>
         </div>
 
@@ -106,7 +106,7 @@ const HumanBody = () => {
             <Card className="h-[600px]">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>מודל אינטראקטיבי</CardTitle>
+                  <CardTitle>מודל אנטומי אינטראקטיבי</CardTitle>
                   <Button
                     onClick={() => setIsRotating(!isRotating)}
                     variant={isRotating ? "default" : "outline"}
@@ -117,9 +117,10 @@ const HumanBody = () => {
               </CardHeader>
               <CardContent className="h-full p-0">
                 <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-                  <ambientLight intensity={0.6} />
-                  <pointLight position={[10, 10, 10]} intensity={1} />
-                  <pointLight position={[-10, -10, -10]} intensity={0.5} />
+                  <ambientLight intensity={0.4} />
+                  <pointLight position={[10, 10, 10]} intensity={0.8} />
+                  <pointLight position={[-10, -10, -10]} intensity={0.3} />
+                  <directionalLight position={[5, 5, 5]} intensity={0.5} />
                   
                   <HumanBodyModel
                     bodyParts={bodyParts}
@@ -147,8 +148,8 @@ const HumanBody = () => {
             
             <Card>
               <CardHeader>
-                <CardTitle>חלקי הגוף</CardTitle>
-                <CardDescription>לחץ על החלקים להדגשה</CardDescription>
+                <CardTitle>מערכות הגוף</CardTitle>
+                <CardDescription>לחץ על החלקים להדגשה אנטומית</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
