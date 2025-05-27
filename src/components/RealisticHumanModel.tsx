@@ -1,7 +1,7 @@
 
 import React, { useRef, useMemo } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
-import { Mesh, Vector3 } from 'three';
+import { Mesh } from 'three';
 import * as THREE from 'three';
 import { Text, Sphere, Cylinder, Box } from '@react-three/drei';
 import { BodyPart } from '@/pages/HumanBody';
@@ -75,7 +75,6 @@ const AnatomicalMesh: React.FC<{
   const createRealisticGeometry = (partId: string) => {
     const commonMaterial = {
       map: skinTexture,
-      normalScale: new Vector3(0.3, 0.3),
       roughness: 0.8,
       metalness: 0.1,
     };
