@@ -22,47 +22,166 @@ const BodyPartMesh: React.FC<{
 
   useFrame(() => {
     if (meshRef.current && isSelected) {
-      meshRef.current.scale.setScalar(1 + Math.sin(Date.now() * 0.005) * 0.1);
+      meshRef.current.scale.setScalar(1 + Math.sin(Date.now() * 0.005) * 0.05);
     } else if (meshRef.current) {
       meshRef.current.scale.setScalar(1);
     }
   });
 
-  // Function to create anatomically appropriate geometry
-  const createAnatomicalGeometry = (partId: string, size: [number, number, number]) => {
+  // Função para criar geometrias anatômicas realistas
+  const createAnatomicalGeometry = (partId: string) => {
     switch (partId) {
       case 'head':
-        // Sphere for head
-        return <sphereGeometry args={[size[0] * 0.6, 16, 16]} />;
-      
-      case 'chest':
-        // Ellipsoid for chest (ribcage)
+        // Cabeça com formato oval realista
         return (
           <group>
-            <sphereGeometry args={[size[0] * 0.6, size[1] * 0.8, size[2] * 0.5]} />
+            {/* Crânio principal */}
+            <mesh>
+              <sphereGeometry args={[0.9, 32, 32]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Face - formato mais achatado */}
+            <mesh position={[0, -0.2, 0.7]}>
+              <sphereGeometry args={[0.6, 16, 16]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Olhos */}
+            <mesh position={[-0.25, 0.1, 0.8]}>
+              <sphereGeometry args={[0.1, 8, 8]} />
+              <meshLambertMaterial color="#87CEEB" />
+            </mesh>
+            <mesh position={[0.25, 0.1, 0.8]}>
+              <sphereGeometry args={[0.1, 8, 8]} />
+              <meshLambertMaterial color="#87CEEB" />
+            </mesh>
+            {/* Nariz */}
+            <mesh position={[0, -0.1, 0.85]}>
+              <coneGeometry args={[0.08, 0.2, 8]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+          </group>
+        );
+      
+      case 'chest':
+        // Tórax com formato de caixa torácica
+        return (
+          <group>
+            {/* Caixa torácica principal */}
+            <mesh>
+              <sphereGeometry args={[1.1, 1.4, 0.9]} />
+              <meshLambertMaterial color="#FFB6C1" />
+            </mesh>
+            {/* Costelas visíveis */}
+            {Array.from({ length: 6 }, (_, i) => (
+              <mesh key={i} position={[0, 0.5 - i * 0.15, 0.8]} rotation={[0, 0, Math.PI / 2]}>
+                <torusGeometry args={[0.6 + i * 0.05, 0.02, 8, 16]} />
+                <meshLambertMaterial color="#F0E68C" opacity={0.7} transparent />
+              </mesh>
+            ))}
+            {/* Esterno */}
+            <mesh position={[0, 0, 0.9]}>
+              <boxGeometry args={[0.1, 1.2, 0.05]} />
+              <meshLambertMaterial color="#F0E68C" />
+            </mesh>
           </group>
         );
       
       case 'abdomen':
-        // Slightly tapered cylinder for abdomen
-        return <cylinderGeometry args={[size[0] * 0.4, size[0] * 0.5, size[1], 12]} />;
+        // Abdômen com músculos abdominais
+        return (
+          <group>
+            {/* Abdômen principal */}
+            <mesh>
+              <cylinderGeometry args={[0.8, 0.9, 1.2, 16]} />
+              <meshLambertMaterial color="#FFCCCB" />
+            </mesh>
+            {/* Músculos abdominais "six-pack" */}
+            {Array.from({ length: 6 }, (_, i) => (
+              <mesh key={i} position={[(i % 2 === 0 ? -0.2 : 0.2), 0.4 - Math.floor(i / 2) * 0.25, 0.7]}>
+                <sphereGeometry args={[0.12, 8, 8]} />
+                <meshLambertMaterial color="#FF9999" />
+              </mesh>
+            ))}
+            {/* Umbigo */}
+            <mesh position={[0, -0.1, 0.75]}>
+              <sphereGeometry args={[0.05, 8, 8]} />
+              <meshLambertMaterial color="#CD853F" />
+            </mesh>
+          </group>
+        );
       
       case 'leftArm':
       case 'rightArm':
-        // Capsule shape for arms (cylinder with rounded ends)
+        const isLeft = partId === 'leftArm';
         return (
           <group>
-            <cylinderGeometry args={[size[0] * 0.5, size[0] * 0.3, size[1], 8]} />
+            {/* Braço superior (úmero) */}
+            <mesh position={[0, 0.4, 0]}>
+              <cylinderGeometry args={[0.18, 0.15, 0.8, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Cotovelo */}
+            <mesh position={[0, 0, 0]}>
+              <sphereGeometry args={[0.15, 12, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Antebraço (rádio e ulna) */}
+            <mesh position={[0, -0.4, 0]}>
+              <cylinderGeometry args={[0.15, 0.12, 0.8, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Músculos bíceps */}
+            <mesh position={[isLeft ? 0.12 : -0.12, 0.3, 0]}>
+              <sphereGeometry args={[0.1, 8, 8]} />
+              <meshLambertMaterial color="#FF9999" />
+            </mesh>
+            {/* Mão */}
+            <mesh position={[0, -0.85, 0]}>
+              <sphereGeometry args={[0.12, 12, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
           </group>
         );
       
       case 'leftLeg':
       case 'rightLeg':
-        // Tapered cylinder for legs (thicker at top)
-        return <cylinderGeometry args={[size[0] * 0.6, size[0] * 0.4, size[1], 8]} />;
+        return (
+          <group>
+            {/* Coxa (fêmur) */}
+            <mesh position={[0, 0.5, 0]}>
+              <cylinderGeometry args={[0.25, 0.2, 1, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Joelho */}
+            <mesh position={[0, 0, 0]}>
+              <sphereGeometry args={[0.18, 12, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Panturrilha (tíbia e fíbula) */}
+            <mesh position={[0, -0.5, 0]}>
+              <cylinderGeometry args={[0.18, 0.15, 1, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+            {/* Músculos da coxa */}
+            <mesh position={[0, 0.4, 0.15]}>
+              <sphereGeometry args={[0.15, 8, 8]} />
+              <meshLambertMaterial color="#FF9999" />
+            </mesh>
+            {/* Músculos da panturrilha */}
+            <mesh position={[0, -0.3, -0.12]}>
+              <sphereGeometry args={[0.12, 8, 8]} />
+              <meshLambertMaterial color="#FF9999" />
+            </mesh>
+            {/* Pé */}
+            <mesh position={[0, -1.1, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.12, 0.1, 0.3, 12]} />
+              <meshLambertMaterial color="#FFDBAC" />
+            </mesh>
+          </group>
+        );
       
       default:
-        return <boxGeometry args={size} />;
+        return <sphereGeometry args={[0.5, 16, 16]} />;
     }
   };
 
@@ -80,48 +199,17 @@ const BodyPartMesh: React.FC<{
           document.body.style.cursor = 'auto';
         }}
       >
-        {createAnatomicalGeometry(part.id, part.size)}
-        <meshStandardMaterial
-          color={part.color}
-          transparent
-          opacity={isSelected ? 0.9 : 0.8}
-          emissive={isSelected ? part.color : '#000000'}
-          emissiveIntensity={isSelected ? 0.2 : 0}
-          roughness={0.4}
-          metalness={0.1}
-        />
+        {createAnatomicalGeometry(part.id)}
       </mesh>
-      
-      {/* Add joints/connections for realism */}
-      {(part.id === 'leftArm' || part.id === 'rightArm') && (
-        <mesh position={[part.position[0], part.position[1] + part.size[1] * 0.4, part.position[2]]}>
-          <sphereGeometry args={[0.15, 8, 8]} />
-          <meshStandardMaterial color="#FFCCCB" opacity={0.8} transparent />
-        </mesh>
-      )}
-      
-      {(part.id === 'leftLeg' || part.id === 'rightLeg') && (
-        <>
-          {/* Hip joint */}
-          <mesh position={[part.position[0], part.position[1] + part.size[1] * 0.4, part.position[2]]}>
-            <sphereGeometry args={[0.12, 8, 8]} />
-            <meshStandardMaterial color="#FFCCCB" opacity={0.8} transparent />
-          </mesh>
-          {/* Knee joint */}
-          <mesh position={[part.position[0], part.position[1] - part.size[1] * 0.1, part.position[2]]}>
-            <sphereGeometry args={[0.1, 8, 8]} />
-            <meshStandardMaterial color="#FFCCCB" opacity={0.8} transparent />
-          </mesh>
-        </>
-      )}
       
       {isSelected && (
         <Text
-          position={[part.position[0], part.position[1] + part.size[1] + 0.5, part.position[2]]}
+          position={[part.position[0], part.position[1] + 1.5, part.position[2]]}
           fontSize={0.3}
-          color="#333"
+          color="#2563EB"
           anchorX="center"
           anchorY="middle"
+          font="/fonts/helvetiker_regular.typeface.json"
         >
           {part.nameHe}
         </Text>
@@ -140,7 +228,7 @@ const HumanBodyModel: React.FC<HumanBodyModelProps> = ({
 
   useFrame(() => {
     if (groupRef.current && isRotating) {
-      groupRef.current.rotation.y += 0.005;
+      groupRef.current.rotation.y += 0.003;
     }
   });
 
@@ -155,16 +243,42 @@ const HumanBodyModel: React.FC<HumanBodyModelProps> = ({
         />
       ))}
       
-      {/* Spine representation */}
-      <mesh position={[0, 0.5, -0.1]}>
-        <cylinderGeometry args={[0.05, 0.08, 3, 8]} />
-        <meshStandardMaterial color="#F5F5DC" opacity={0.7} transparent />
+      {/* Coluna vertebral anatomicamente correta */}
+      <group>
+        {Array.from({ length: 24 }, (_, i) => (
+          <mesh key={i} position={[0, 2.5 - i * 0.2, -0.3]}>
+            <cylinderGeometry args={[0.08, 0.08, 0.15, 8]} />
+            <meshLambertMaterial color="#F5F5DC" />
+          </mesh>
+        ))}
+      </group>
+      
+      {/* Clavículas */}
+      <mesh position={[-0.6, 2, 0.2]} rotation={[0, 0, Math.PI / 6]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.8, 8]} />
+        <meshLambertMaterial color="#F5F5DC" />
+      </mesh>
+      <mesh position={[0.6, 2, 0.2]} rotation={[0, 0, -Math.PI / 6]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.8, 8]} />
+        <meshLambertMaterial color="#F5F5DC" />
       </mesh>
       
-      {/* Base platform */}
-      <mesh position={[0, -3.5, 0]} receiveShadow>
-        <cylinderGeometry args={[2, 2, 0.1, 32]} />
-        <meshStandardMaterial color="#f0f0f0" />
+      {/* Pelve */}
+      <mesh position={[0, -0.5, 0]}>
+        <torusGeometry args={[0.7, 0.15, 8, 16]} />
+        <meshLambertMaterial color="#F5F5DC" />
+      </mesh>
+      
+      {/* Base anatômica */}
+      <mesh position={[0, -4, 0]} receiveShadow>
+        <cylinderGeometry args={[2.5, 2.5, 0.2, 32]} />
+        <meshLambertMaterial color="#E8E8E8" />
+      </mesh>
+      
+      {/* Sombra do corpo */}
+      <mesh position={[0, -3.9, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3, 6]} />
+        <meshLambertMaterial color="#000000" opacity={0.1} transparent />
       </mesh>
     </group>
   );
