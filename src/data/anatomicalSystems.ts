@@ -30,7 +30,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
       'Suporte corporal e postura',
       'Proteção de órgãos vitais',
       'Produção de células sanguíneas',
-      'Armazenamento de minerais (Ca²⁺, PO₄³⁻)',
+      'Armazenamento de minerais (Ca2+, PO43-)',
       'Movimento e locomoção'
     ],
     disorders: [
@@ -91,7 +91,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
       'Válvulas cardíacas (mitral, tricúspide, aórtica, pulmonar)'
     ],
     functions: [
-      'Transporte de O₂ e CO₂',
+      'Transporte de O2 e CO2',
       'Distribuição de nutrientes',
       'Remoção de resíduos metabólicos',
       'Regulação da temperatura corporal',
@@ -156,7 +156,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ],
     functions: [
       'Ventilação pulmonar (inspiração/expiração)',
-      'Hematose alveolar - troca O₂/CO₂',
+      'Hematose alveolar - troca O2/CO2',
       'Regulação do pH sanguíneo',
       'Fonação e comunicação',
       'Filtração e umidificação do ar'
@@ -172,7 +172,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
       'Respiramos 22.000 vezes/dia',
       'Superfície alveolar: 70 m²',
       'Capacidade pulmonar: 6 litros',
-      'Ar inspirado contém 21% O₂'
+      'Ar inspirado contém 21% O2'
     ]
   },
   digestive: {
