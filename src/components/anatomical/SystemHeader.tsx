@@ -8,17 +8,15 @@ interface SystemHeaderProps {
 }
 
 const SystemHeader: React.FC<SystemHeaderProps> = ({ systemInfo }) => {
+  const IconComponent = systemInfo.icon;
+  
   return (
     <CardHeader>
-      <div className="flex items-center gap-3">
-        {systemInfo.icon}
-        <div>
-          <CardTitle className="text-xl">{systemInfo.name}</CardTitle>
-          <CardDescription className="mt-2">
-            {systemInfo.description}
-          </CardDescription>
-        </div>
-      </div>
+      <CardTitle className="flex items-center gap-3">
+        <IconComponent className="w-6 h-6" />
+        {systemInfo.name}
+      </CardTitle>
+      <CardDescription>{systemInfo.description}</CardDescription>
     </CardHeader>
   );
 };

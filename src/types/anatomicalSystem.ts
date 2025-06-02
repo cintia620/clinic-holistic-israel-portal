@@ -1,6 +1,8 @@
 
+import { LucideIcon } from 'lucide-react';
+
 export interface AnatomicalSystemData {
-  icon: React.ReactNode;
+  icon: LucideIcon;
   name: string;
   description: string;
   structures: string[];

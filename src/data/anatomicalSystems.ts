@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { 
   Heart, 
   Brain, 
@@ -7,16 +6,13 @@ import {
   Activity, 
   Wind, 
   Apple, 
-  Droplets, 
-  Baby, 
-  Zap, 
-  User 
+  Droplets
 } from 'lucide-react';
 import { AnatomicalSystemData } from '@/types/anatomicalSystem';
 
 export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
   skeletal: {
-    icon: <Bone className="w-6 h-6" />,
+    icon: Bone,
     name: 'Sistema Esquelético',
     description: 'Fornece suporte estrutural, protege órgãos vitais e permite movimento através das articulações.',
     structures: [
@@ -48,7 +44,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ]
   },
   muscular: {
-    icon: <Activity className="w-6 h-6" />,
+    icon: Activity,
     name: 'Sistema Muscular',
     description: 'Responsável pelo movimento, postura e produção de calor através da contração muscular.',
     structures: [
@@ -80,7 +76,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ]
   },
   cardiovascular: {
-    icon: <Heart className="w-6 h-6" />,
+    icon: Heart,
     name: 'Sistema Cardiovascular',
     description: 'Transporta oxigênio, nutrientes e resíduos através do sangue bombeado pelo coração.',
     structures: [
@@ -112,7 +108,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ]
   },
   nervous: {
-    icon: <Brain className="w-6 h-6" />,
+    icon: Brain,
     name: 'Sistema Nervoso',
     description: 'Controla e coordena funções corporais através de impulsos elétricos e químicos.',
     structures: [
@@ -144,7 +140,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ]
   },
   respiratory: {
-    icon: <Wind className="w-6 h-6" />,
+    icon: Wind,
     name: 'Sistema Respiratório',
     description: 'Realiza trocas gasosas entre o ar atmosférico e o sangue nos alvéolos pulmonares.',
     structures: [
@@ -176,7 +172,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ]
   },
   digestive: {
-    icon: <Apple className="w-6 h-6" />,
+    icon: Apple,
     name: 'Sistema Digestivo',
     description: 'Digere alimentos e absorve nutrientes essenciais para o metabolismo celular.',
     structures: [
@@ -208,7 +204,7 @@ export const anatomicalSystemsData: Record<string, AnatomicalSystemData> = {
     ]
   },
   urinary: {
-    icon: <Droplets className="w-6 h-6" />,
+    icon: Droplets,
     name: 'Sistema Urinário',
     description: 'Filtra resíduos do sangue e regula o equilíbrio hidroeletrolítico corporal.',
     structures: [
