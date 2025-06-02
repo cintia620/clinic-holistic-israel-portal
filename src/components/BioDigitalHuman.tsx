@@ -1,13 +1,8 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Loader2, Eye, EyeOff, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
-
-interface BioDigitalHumanProps {
-  onSystemSelect?: (system: string) => void;
-  selectedSystem?: string;
-}
 
 declare global {
   interface Window {
@@ -15,15 +10,11 @@ declare global {
   }
 }
 
-const BioDigitalHuman: React.FC<BioDigitalHumanProps> = ({ 
-  onSystemSelect, 
-  selectedSystem 
-}) => {
+const BioDigitalHuman: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const humanRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [availableSystems, setAvailableSystems] = useState<string[]>([]);
   const [visibleSystems, setVisibleSystems] = useState<Set<string>>(new Set());
 
   // Sistemas anatômicos disponíveis no BioDigital Human
@@ -102,21 +93,15 @@ const BioDigitalHuman: React.FC<BioDigitalHumanProps> = ({
         // Carregar modelo padrão do corpo humano
         loadDefaultModel();
         
-        // Obter sistemas disponíveis
-        getAvailableSystems();
+        // Inicializar sistemas visíveis
+        const systems = anatomicalSystems.map(sys => sys.id);
+        setVisibleSystems(new Set(systems));
       });
 
       human.on('human.error', (error: any) => {
         console.error('Erro no BioDigital Human:', error);
         setError('Erro ao inicializar o modelo 3D');
         setIsLoading(false);
-      });
-
-      // Eventos de interação
-      human.on('human.pick', (data: any) => {
-        if (data.objectId && onSystemSelect) {
-          onSystemSelect(data.objectId);
-        }
       });
 
     } catch (err) {
@@ -141,15 +126,6 @@ const BioDigitalHuman: React.FC<BioDigitalHumanProps> = ({
     });
   };
 
-  const getAvailableSystems = () => {
-    if (!humanRef.current) return;
-    
-    // Simular sistemas disponíveis (na implementação real, seria obtido da API)
-    const systems = anatomicalSystems.map(sys => sys.id);
-    setAvailableSystems(systems);
-    setVisibleSystems(new Set(systems));
-  };
-
   const toggleSystem = (systemId: string) => {
     if (!humanRef.current) return;
 
@@ -166,10 +142,6 @@ const BioDigitalHuman: React.FC<BioDigitalHumanProps> = ({
     }
     
     setVisibleSystems(newVisibleSystems);
-    
-    if (onSystemSelect) {
-      onSystemSelect(systemId);
-    }
   };
 
   const resetView = () => {

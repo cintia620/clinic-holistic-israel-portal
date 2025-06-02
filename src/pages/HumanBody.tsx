@@ -1,22 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import Header from '@/components/Header';
 import BioDigitalHuman from '@/components/BioDigitalHuman';
-import AnatomicalSystemInfo from '@/components/AnatomicalSystemInfo';
-
-export interface BodyPart {
-  id: string;
-  name: string;
-  nameHe: string;
-  description: string;
-  color: string;
-  position: [number, number, number];
-  size: [number, number, number];
-}
 
 const HumanBody = () => {
-  const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 font-heebo" dir="rtl">
       <Header />
@@ -30,17 +17,8 @@ const HumanBody = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <BioDigitalHuman 
-              onSystemSelect={setSelectedSystem}
-              selectedSystem={selectedSystem}
-            />
-          </div>
-
-          <div className="space-y-4">
-            <AnatomicalSystemInfo selectedSystem={selectedSystem} />
-          </div>
+        <div className="max-w-7xl mx-auto">
+          <BioDigitalHuman />
         </div>
       </div>
     </div>
