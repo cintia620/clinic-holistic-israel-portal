@@ -7,9 +7,9 @@ import {
   Brain, 
   Bone, 
   Activity, 
-  Lungs, 
-  Stomach, 
-  Kidney, 
+  Wind, 
+  Apple, 
+  Droplets, 
   Baby, 
   Zap, 
   User 
@@ -158,7 +158,7 @@ const getSystemInfo = (systemId: string) => {
       ]
     },
     respiratory: {
-      icon: <Lungs className="w-6 h-6" />,
+      icon: <Wind className="w-6 h-6" />,
       name: 'Sistema Respiratório',
       description: 'Realiza trocas gasosas entre o ar atmosférico e o sangue nos alvéolos pulmonares.',
       structures: [
@@ -190,7 +190,7 @@ const getSystemInfo = (systemId: string) => {
       ]
     },
     digestive: {
-      icon: <Stomach className="w-6 h-6" />,
+      icon: <Apple className="w-6 h-6" />,
       name: 'Sistema Digestivo',
       description: 'Digere alimentos e absorve nutrientes essenciais para o metabolismo celular.',
       structures: [
@@ -222,7 +222,7 @@ const getSystemInfo = (systemId: string) => {
       ]
     },
     urinary: {
-      icon: <Kidney className="w-6 h-6" />,
+      icon: <Droplets className="w-6 h-6" />,
       name: 'Sistema Urinário',
       description: 'Filtra resíduos do sangue e regula o equilíbrio hidroeletrolítico corporal.',
       structures: [
