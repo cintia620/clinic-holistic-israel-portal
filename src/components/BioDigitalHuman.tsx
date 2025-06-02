@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -75,10 +74,10 @@ const BioDigitalHuman: React.FC<BioDigitalHumanProps> = ({
     }
 
     try {
-      // Configuração do widget BioDigital Human
+      // Configuração do widget BioDigital Human com sua chave de API
       const human = new window.Human({
         container: containerRef.current,
-        apiKey: 'demo', // Para demonstração - em produção, use uma chave real
+        apiKey: '87ca47d71f065909cc7c2e40ba8e50df2243a0d0', // Sua chave de API
         background: '#ffffff',
         ui: {
           nav: true,
